@@ -1,8 +1,17 @@
 @import "tailwindcss";
 
+@font-face {
+    font-family: Cocacola;
+    src: url("/fonts/lokicola.ttf")
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
+}
+
+@theme {
+  --font-cocacola: Cocacola, "sans-serif";
 }
 
 @theme inline {
@@ -22,5 +31,4 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
 }
