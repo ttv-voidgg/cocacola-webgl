@@ -32,84 +32,81 @@ export function MainScene() {
     const initialPosition = new THREE.Vector3(2, 0, 0);
 
     useEffect(() => {
-        if (!can1Ref.current || !can1SpinRef.current) return;
+      if (!can1Ref.current || !can1SpinRef.current) return;
 
-        console.log("Animation started");
+      console.log("Animation started");
 
-        const timeline = gsap.timeline({
-            scrollTrigger: {
-                trigger: "body",
-                start: "top top",
-                end: "bottom bottom",
-                scrub: true,
-                markers: true,
-            }
-        });
-
-
-// Timeline for group movement and rotation
-// Move and rotate the group simultaneously at the start
-timeline
-  .to(can1Ref.current.position, {
-    x: 0.5,
-    y: 0,
-    z: 3,
-    ease: "power1.in",
-    duration: 1,
-    onStart: () => console.log("Group position move started"),
-    onComplete: () => console.log("Group position move complete"),
-  }, 0)
-  .to(can1Ref.current.rotation, {
-    x: Math.PI / 4,
-    y: Math.PI / -4,
-    ease: "power1.in",
-    duration: 1,
-    onStart: () => console.log("Group rotation started"),
-    onUpdate: () => console.log("Group rotation updated"),
-    onComplete: () => {
-      console.log("Group rotation complete");
-
-      // Start continuous cylinder spin AFTER group rotation completes
-      gsap.to(can1SpinRef.current.rotation, {
-        y: "+=6.28", // full rotation (2π radians)
-        duration: 4,
-        ease: "linear",
-        repeat: -1,  // infinite loop
-        onStart: () => console.log("Cylinder spin started"),
-        onComplete: () => console.log("Cylinder spin complete"),
+      const timeline = gsap.timeline({
+        scrollTrigger: {
+          trigger: "body",
+          start: "top top",
+          end: "bottom bottom",
+          scrub: true,
+          markers: true,
+        }
       });
-    }
-  }, 0);
 
-// Bring group back to original position and rotation
-timeline
-  .to(can1Ref.current.position, {
-    x: 0,
-    y: 0,
-    z: 0,
-    ease: "power1.out",
-    duration: 1,
-    onStart: () => console.log("Group position return started"),
-    onComplete: () => console.log("Group position return complete"),
-  }, 1)
-  .to(can1Ref.current.rotation, {
-    x: 0,
-    ease: "power1.out",
-    duration: 1,
-    onStart: () => console.log("Group rotation return started"),
-    onComplete: () => console.log("Group rotation return complete"),
-  }, 1);
-  
+
+      // Timeline for group movement and rotation
+      // Move and rotate the group simultaneously at the start
+      timeline.to(can1Ref.current.position, {
+        x: 0.5,
+        y: 0,
+        z: 3,
+        ease: "power1.in",
+        duration: 1,
+        onStart: () => console.log("Group position move started"),
+        onComplete: () => console.log("Group position move complete"),
+      }, 0)
+      .to(can1Ref.current.rotation, {
+        x: Math.PI / 4,
+        y: Math.PI / -4,
+        ease: "power1.in",
+        duration: 1,
+        onStart: () => console.log("Group rotation started"),
+        onComplete: () => {
+          console.log("Group rotation complete");
+
+          // Start continuous cylinder spin AFTER group rotation completes
+          gsap.to(can1SpinRef.current.rotation, {
+            y: "+=6.28", // full rotation (2π radians)
+            duration: 16,
+            ease: "linear",
+            repeat: -1,  // infinite loop
+            onStart: () => console.log("Cylinder spin started"),
+            onComplete: () => console.log("Cylinder spin complete"),
+          });
+        }
+      }, 0);
+
+      // Bring group back to original position and rotation
+      timeline.to(can1Ref.current.position, {
+        x: 0,
+        y: 0,
+        z: 0,
+        ease: "power1.out",
+        duration: 1,
+        onStart: () => console.log("Group position return started"),
+        onComplete: () => console.log("Group position return complete"),
+      }, 5)
+      .to(can1Ref.current.rotation, {
+        x: 0,
+        ease: "power1.out",
+        duration: 1,
+        onStart: () => console.log("Group rotation return started"),
+        onComplete: () => console.log("Group rotation return complete"),
+      }, 5);
+    
     }, []);
 
-    return (
-        <>
-            <group ref={can1Ref} position={initialPosition}>
-                <group ref={can1SpinRef}>
-                    <Model />
-                </group>
-            </group>
-        </>
-    )
+  return (
+    <>
+      <group ref={can1Ref} position={initialPosition}>
+          <group ref={can1SpinRef}>
+              <Model />
+          </group>
+      </group>
+    </>
+  )
 }
 

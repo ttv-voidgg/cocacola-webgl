@@ -13,20 +13,23 @@ function WavingRibbon() {
       const geometry = meshRef.current.geometry as THREE.PlaneGeometry
       const positionAttribute = geometry.attributes.position
 
+      // CHANGE THIS VALUE TO CONTROL GLOBAL SPEED
+      // 0.5 = Half speed, 2.0 = Double speed
+      const speed = 0.2 
+
       for (let i = 0; i < positionAttribute.count; i++) {
         const x = positionAttribute.getX(i)
         const y = positionAttribute.getY(i)
 
-        // Create wave effect
-        const waveX = Math.sin(x * 0.5 + time * 0.8) * 0.3
-        const waveY = Math.sin(y * 0.3 + time * 0.6) * 0.2
-        const waveZ =
-          Math.sin(x * 0.5 + time) * 0.8 +
-          Math.sin(y * 0.3 + time * 1.5) * 0.5 +
-          Math.sin(x * 0.2 + y * 0.2 + time) * 0.7
+        // Multiply time by your speed variable
+        const t = time * speed 
 
-        
-        
+        const waveX = Math.sin(x * 0.5 + t * 0.8) * 0.3
+        const waveY = Math.sin(y * 0.3 + t * 0.6) * 0.2
+        const waveZ =
+          Math.sin(x * 0.5 + t) * 0.8 +
+          Math.sin(y * 0.3 + t * 1.5) * 0.5 +
+          Math.sin(x * 0.2 + y * 0.2 + t) * 0.7
 
         positionAttribute.setZ(i, waveZ + waveX + waveY)
       }
@@ -34,15 +37,20 @@ function WavingRibbon() {
       positionAttribute.needsUpdate = true
       geometry.computeVertexNormals()
 
-      // Rotate the ribbon slowly
-      meshRef.current.rotation.z = Math.sin(time * 0.2) * 0.1
+      // Don't forget to apply speed here too if you want rotation to match
+      meshRef.current.rotation.z = Math.sin(time * speed * 0.2) * 0.1
     }
   })
 
   return (
     <mesh ref={meshRef} rotation={[0, 0, 0]}>
-      <planeGeometry args={[20, 5.5, 20, 20]} />
-      <meshStandardMaterial color="#ffffff" side={THREE.DoubleSide} metalness={0.2} roughness={1} wireframe={false} />
+      <planeGeometry args={[20, 5.5, 70, 3]} />
+      <meshStandardMaterial 
+        color="#ffffff" 
+        side={THREE.DoubleSide} 
+        metalness={0.2} 
+        roughness={1} 
+        wireframe={false} />
     </mesh>
   )
 }
@@ -216,7 +224,7 @@ export default function Home() {
         {/* Content */}
         <div className="relative z-10 w-2/3 flex flex-col items-start justify-center px-10 text-center">
           <h1 className="w-full font-lokicola text-[300px]/[0.3] text-red-500">Coca Cola</h1>
-          <h2 className="w-full font-cocacola text-[100px] text-red-500 mt-4">It's a demo page</h2>
+          <h2 className="w-full font-cocacola text-[80px] text-red-500 mt-4">It's a demo page</h2>
           <sub className="w-full text-xl">This is not optimized for mobile 🤫 make sure to view this in 1920 x 1080</sub>
         </div>
         <div className="relative z-10 w-1/3"></div>
