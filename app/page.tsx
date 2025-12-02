@@ -185,7 +185,7 @@ export default function Home() {
 
           <p className="w-full text-[20px] text-white mt-4 text-justify">
             <i><strong>Dev Notes: </strong> 
-              I don't know if I really want to add more to this; I rant out creative juice creating the 3D model. this is just a sample WebGL marketing page anyway. 
+              I don't know if I really want to add more to this; I ran out creative juice creating the 3D model. this is just a sample WebGL marketing page anyway. 
               I'm looking for a designer to partner with or a team who I can contribute my skills to. I can create both WebGL sites, and the 3D models (in case the client needs one).
               In addition, I also know how to do photography, videography, and image and video post production.
             </i>
