@@ -1,7 +1,7 @@
 "use client"
 
 import { Canvas, useFrame } from "@react-three/fiber"
-import { useMemo, useRef } from "react"
+import { useEffect, useMemo, useRef } from "react"
 import * as THREE from "three"
 
 function WavingRibbon() {
@@ -205,6 +205,45 @@ function RibbonWithText() {
 }
 
 export default function Home() {
+
+  // 1. Create refs for the SVG text paths
+  const textPathTopRef = useRef<SVGTextPathElement>(null)
+  const textPathBottomRef = useRef<SVGTextPathElement>(null)
+
+  // 2. Define your text string once to keep the DOM clean
+  const baseText = "REFRESHING • DELICIOUS • ICONIC • CLASSIC • "
+  const repeatCount = 10 // Adjust based on screen width coverage
+  const repeatedText = Array(repeatCount).fill(baseText).join("")
+
+  // 3. Set up the animation loop
+  useEffect(() => {
+    let animationFrameId: number
+    let offset = -100 // Starting at -100% like your original code
+
+    const animate = () => {
+      // Adjust speed here (0.05 is roughly equivalent to 20s duration)
+      offset += 0.05 
+
+      // Reset when we reach 0% to loop seamlessly back to -100%
+      if (offset >= 0) {
+        offset = -100
+      }
+
+      if (textPathTopRef.current) {
+        textPathTopRef.current.setAttribute("startOffset", `${offset}%`)
+      }
+      if (textPathBottomRef.current) {
+        textPathBottomRef.current.setAttribute("startOffset", `${offset}%`)
+      }
+
+      animationFrameId = requestAnimationFrame(animate)
+    }
+
+    animate()
+
+    return () => cancelAnimationFrame(animationFrameId)
+  }, [])
+
   return (
     <div className="z-50">
       <div
@@ -259,10 +298,9 @@ export default function Home() {
             xmlns="http://www.w3.org/2000/svg"
           >
             <defs>
-              <path id="wavePathTop"    d="M0 200 Q 175 150 350 200 T 700 200 T 1050 200 T 1400 200" fill="none" />
+              <path id="wavePathTop" d="M0 200 Q 175 150 350 200 T 700 200 T 1050 200 T 1400 200" fill="none" />
               <path id="wavePathBottom" d="M0 400 Q 175 350 350 400 T 700 400 T 1050 400 T 1400 400" fill="none" />
 
-              {/* Wave ribbon shape */}
               <linearGradient id="ribbonGradient" x1="0%" y1="0%" x2="0%" y2="100%">
                 <stop offset="0%" stopColor="#dc2626" stopOpacity="0.8" />
                 <stop offset="50%" stopColor="#ef4444" stopOpacity="0.9" />
@@ -270,32 +308,39 @@ export default function Home() {
               </linearGradient>
             </defs>
 
+            {/* Ribbon Background */}
             <path
               d="M0 200 Q 175 150 350 200 T 700 200 T 1050 200 T 1400 200 L 1400 400 Q 1225 450 1050 400 T 700 400 T 350 400 T 0 400 Z"
               fill="url(#ribbonGradient)"
               opacity="0.6"
             />
+
+            {/* Top Text - No <animate> tag, using ref instead */}
             <text fill="white" fontSize="40" fontWeight="bold" fontFamily="Arial, sans-serif">
-              <textPath xlinkHref="#wavePathTop" startOffset="-100%">
-                <animate attributeName="startOffset" from="-100%" to="0%" dur="20s" repeatCount="indefinite" />
-                REFRESHING • DELICIOUS • ICONIC • CLASSIC • REFRESHING • DELICIOUS • ICONIC • CLASSIC • REFRESHING •
-                DELICIOUS • ICONIC • CLASSIC •
+              <textPath 
+                ref={textPathTopRef} 
+                xlinkHref="#wavePathTop" 
+                startOffset="-100%"
+              >
+                {repeatedText}
               </textPath>
             </text>
 
+            {/* Bottom Text - No <animate> tag, using ref instead */}
             <g transform="translate(0, 30)">
               <text fill="white" fontSize="40" fontWeight="bold" fontFamily="Arial, sans-serif">
-                <textPath xlinkHref="#wavePathBottom" startOffset="-100%">
-                  <animate attributeName="startOffset" from="-100%" to="0%" dur="20s" repeatCount="indefinite" />
-                  REFRESHING • DELICIOUS • ICONIC • CLASSIC • REFRESHING • DELICIOUS • ICONIC • CLASSIC • REFRESHING •
-                  DELICIOUS • ICONIC • CLASSIC •
+                <textPath 
+                  ref={textPathBottomRef} 
+                  xlinkHref="#wavePathBottom" 
+                  startOffset="-100%"
+                >
+                  {repeatedText}
                 </textPath>
               </text>
             </g>
           </svg>
         </div>
 
-        {/* Your content can go here */}
         <div className="relative z-10">{/* Add any foreground content here */}</div>
       </div>
     </div>
