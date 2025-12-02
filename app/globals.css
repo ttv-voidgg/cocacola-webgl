@@ -1,17 +1,20 @@
 @import "tailwindcss";
 
+@import "tailwindcss";
+
 @font-face {
-    font-family: Cocacola;
-    src: url("/fonts/lokicola.ttf")
+    font-family: "lokicola"; /* Added quotes for consistency */
+    src: url("/fonts/lokicola.ttf") format("truetype");
 }
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@font-face {
+    font-family: "cocacola";
+    src: url("/fonts/cocacola.ttf") format("truetype");
 }
 
 @theme {
-  --font-cocacola: Cocacola, "sans-serif";
+  --font-lokicola: "lokicola", sans-serif;
+  --font-cocacola: "cocacola", sans-serif; /* Renamed variable to match family */
 }
 
 @theme inline {

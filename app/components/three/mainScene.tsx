@@ -61,9 +61,11 @@ timeline
   }, 0)
   .to(can1Ref.current.rotation, {
     x: Math.PI / 4,
+    y: Math.PI / -4,
     ease: "power1.in",
     duration: 1,
     onStart: () => console.log("Group rotation started"),
+    onUpdate: () => console.log("Group rotation updated"),
     onComplete: () => {
       console.log("Group rotation complete");
 

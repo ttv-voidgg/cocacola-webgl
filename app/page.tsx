@@ -215,15 +215,15 @@ export default function Home() {
 
         {/* Content */}
         <div className="relative z-10 w-2/3 flex flex-col items-start justify-center px-10 text-center">
-          <h1 className="w-full font-cocacola text-[300px]/[0.3] text-red-500">Coca Cola</h1>
-          <h2 className="w-full text-[100px] text-red-500 mt-4">It's a demo page</h2>
+          <h1 className="w-full font-lokicola text-[300px]/[0.3] text-red-500">Coca Cola</h1>
+          <h2 className="w-full font-cocacola text-[100px] text-red-500 mt-4">It's a demo page</h2>
           <sub className="w-full text-xl">This is not optimized for mobile 🤫 make sure to view this in 1920 x 1080</sub>
         </div>
         <div className="relative z-10 w-1/3"></div>
       </div>
       <div className="h-screen flex min-h-screen items-center justify-center bg-linear-to-t from-black to-red-500 font-sans">
         <div className="relative z-10 w-2/3 flex flex-col items-start justify-center px-[220px] text-center">
-          <h3 className="w-full font-cocacola text-[200px]/[0.8] text-white">The Dev</h3>
+          <h3 className="w-full font-lokicola text-[200px]/[0.8] text-white">The Dev</h3>
           <p className="w-full text-[30px] text-white mt-4 text-justify">
             I created a sample Coca-Cola-inspired landing page to showcase my skills in Next, Three.js, GSAP and Three Fiber, featuring interactive 3D elements, dynamic animations, and immersive visuals that bring the brand experience to life.
           </p>
