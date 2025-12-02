@@ -54,7 +54,7 @@ export function MainScene() {
         y: 0,
         z: 3,
         ease: "power1.in",
-        duration: 1,
+        duration: 3,
         onStart: () => console.log("Group position move started"),
         onComplete: () => console.log("Group position move complete"),
       }, 0)
@@ -62,7 +62,7 @@ export function MainScene() {
         x: Math.PI / 4,
         y: Math.PI / -4,
         ease: "power1.in",
-        duration: 1,
+        duration: 3,
         onStart: () => console.log("Group rotation started"),
         onComplete: () => {
           console.log("Group rotation complete");
@@ -85,14 +85,14 @@ export function MainScene() {
         y: 0,
         z: 0,
         ease: "power1.out",
-        duration: 1,
+        duration: 3,
         onStart: () => console.log("Group position return started"),
         onComplete: () => console.log("Group position return complete"),
       }, 5)
       .to(can1Ref.current.rotation, {
         x: 0,
         ease: "power1.out",
-        duration: 1,
+        duration: 3,
         onStart: () => console.log("Group rotation return started"),
         onComplete: () => console.log("Group rotation return complete"),
       }, 5);

@@ -1,8 +1,12 @@
 "use client"
 
 import { Canvas, useFrame } from "@react-three/fiber"
-import { useEffect, useMemo, useRef } from "react"
+import { useEffect, useLayoutEffect, useMemo, useRef } from "react"
 import * as THREE from "three"
+import gsap from "gsap"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
+
+gsap.registerPlugin(ScrollTrigger)
 
 function WavingRibbon() {
   const meshRef = useRef<THREE.Mesh>(null)
@@ -55,36 +59,13 @@ function WavingRibbon() {
   )
 }
 
-function TextSprite({ char, color = "white" }: { char: string; color?: string }) {
-  const sprite = useMemo(() => {
-    const canvas = document.createElement("canvas")
-    const context = canvas.getContext("2d")
-    if (!context) return null
-
-    canvas.width = 128
-    canvas.height = 128
-
-    context.font = "bold 80px Arial, sans-serif"
-    context.fillStyle = color
-    context.textAlign = "center"
-    context.textBaseline = "middle"
-    context.fillText(char, 64, 64)
-
-    const texture = new THREE.CanvasTexture(canvas)
-    const material = new THREE.SpriteMaterial({ map: texture, transparent: true })
-    const spriteObj = new THREE.Sprite(material)
-    spriteObj.scale.set(0.5, 0.5, 1)
-
-    return spriteObj
-  }, [char, color])
-
-  return sprite ? <primitive object={sprite} /> : null
-}
-
 export default function Home() {
 
   const textPathTopRef = useRef<SVGTextPathElement>(null)
   const textPathBottomRef = useRef<SVGTextPathElement>(null)
+
+  const sectionRef = useRef<HTMLDivElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
 
   const textString = "REFRESHING • DELICIOUS • ICONIC • CLASSIC • "
   
@@ -142,6 +123,33 @@ export default function Home() {
     return () => cancelAnimationFrame(animationFrameId)
   }, [patternWidth])
 
+  // --- GSAP Animation Logic ---
+  useLayoutEffect(() => {
+    // Create a GSAP context for cleanup safety in React
+    const ctx = gsap.context(() => {
+      
+      // Animate the contentRef when sectionRef is scrolled
+      gsap.to(contentRef.current, {
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          // "start": when the top of the trigger hits the top of the viewport
+          // We want it to start fading when the user is halfway through the section
+          start: "center center", 
+          // "end": when the bottom of the trigger hits the top of the viewport (leaving)
+          end: "bottom top", 
+          scrub: true, // Smoothly ties animation progress to scroll bar
+          markers: false, // Set to true if you want to see the start/end lines for debugging
+        },
+        opacity: 0,
+        y: -500, // Move text up slightly as it fades out
+        ease: "power1.out"
+      })
+
+    }, sectionRef) // Scope to sectionRef
+
+    return () => ctx.revert() // Cleanup on unmount
+  }, [])  
+
   return (
     <div className="z-50">
       <div
@@ -166,8 +174,10 @@ export default function Home() {
         </div>
         <div className="relative z-10 w-1/3"></div>
       </div>
-      <div className="h-screen flex min-h-screen items-center justify-center bg-linear-to-t from-black to-red-500 font-sans">
-        <div className="relative z-10 w-2/3 flex flex-col items-start justify-center px-[220px] text-center">
+
+      {/*2nd Div Content*/}
+      <div ref={sectionRef} className="h-screen flex min-h-screen items-center justify-center bg-linear-to-t from-black to-red-500 font-sans">
+        <div ref={contentRef} className="relative z-10 w-2/3 flex flex-col items-start justify-center px-[220px] text-center">
           <h3 className="w-full font-lokicola text-[200px]/[0.8] text-white">The Dev</h3>
           <p className="w-full text-[30px] text-white mt-4 text-justify">
             I created a sample Coca-Cola-inspired landing page to showcase my skills in Next, Three.js, GSAP and Three Fiber, featuring interactive 3D elements, dynamic animations, and immersive visuals that bring the brand experience to life.
