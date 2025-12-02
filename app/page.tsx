@@ -81,168 +81,66 @@ function TextSprite({ char, color = "white" }: { char: string; color?: string })
   return sprite ? <primitive object={sprite} /> : null
 }
 
-function RibbonWithText() {
-  const meshRef = useRef<THREE.Mesh>(null)
-  const topTextRefs = useRef<THREE.Sprite[]>([])
-  const bottomTextRefs = useRef<THREE.Sprite[]>([])
-
-  const scrollingText = "REFRESHING • DELICIOUS • ICONIC • CLASSIC • "
-
-  const getWaveTransform = (x: number, time: number, offsetY: number) => {
-    const waveX = Math.sin(x * 0.5 + time * 0.8) * 0.3
-    const waveY = Math.sin(x * 0.3 + time * 0.6) * 0.2
-    const z = Math.sin(x * 0.3 + time) * 0.5 + waveX + waveY
-
-    // Calculate tangent for rotation (derivative of the wave function)
-    const delta = 0.01
-    const z2 =
-      Math.sin((x + delta) * 0.3 + time) * 0.5 +
-      Math.sin((x + delta) * 0.5 + time * 0.8) * 0.3 +
-      Math.sin((x + delta) * 0.3 + time * 0.6) * 0.2
-    const tangent = Math.atan2(z2 - z, delta)
-
-    return {
-      x,
-      y: offsetY,
-      z: z + 0.2,
-      rotation: tangent,
-    }
-  }
-
-  useFrame((state) => {
-    if (meshRef.current) {
-      const time = state.clock.getElapsedTime()
-      const geometry = meshRef.current.geometry as THREE.PlaneGeometry
-      const positionAttribute = geometry.attributes.position
-
-      for (let i = 0; i < positionAttribute.count; i++) {
-        const x = positionAttribute.getX(i)
-        const y = positionAttribute.getY(i)
-
-        const waveX = Math.sin(x * 0.5 + time * 0.8) * 0.3
-        const waveY = Math.sin(y * 0.3 + time * 0.6) * 0.2
-        const waveZ = Math.sin(x * 0.3 + y * 0.2 + time) * 0.5
-
-        positionAttribute.setZ(i, waveZ + waveX + waveY)
-      }
-
-      positionAttribute.needsUpdate = true
-      geometry.computeVertexNormals()
-
-      meshRef.current.rotation.z = Math.sin(time * 0.2) * 0.1
-    }
-
-    const time = state.clock.getElapsedTime()
-    const scrollSpeed = 0.5
-    const charSpacing = 0.35
-
-    topTextRefs.current.forEach((sprite, index) => {
-      if (sprite) {
-        const offset = ((time * scrollSpeed + index * charSpacing) % 20) - 10
-        const transform = getWaveTransform(offset, time, 4.5)
-
-        sprite.position.set(transform.x, transform.y, transform.z)
-        sprite.material.rotation = transform.rotation + Math.sin(time * 0.2) * 0.1
-      }
-    })
-
-    bottomTextRefs.current.forEach((sprite, index) => {
-      if (sprite) {
-        const offset = ((time * scrollSpeed + index * charSpacing) % 20) - 10
-        const transform = getWaveTransform(offset, time, 4.5)
-
-        sprite.position.set(transform.x, transform.y, transform.z)
-        sprite.material.rotation = transform.rotation + Math.sin(time * 0.2) * 0.1
-      }
-    })
-  })
-
-  const repeatCount = Math.ceil(20 / (scrollingText.length * 0.35)) + 2
-  const allCharacters = Array(repeatCount).fill(scrollingText).join("").split("")
-
-  return (
-    <>
-      <mesh ref={meshRef} rotation={[0, 0, 0]}>
-        <planeGeometry args={[10, 50, 80, 40]} />
-        <meshStandardMaterial
-          color="#dc2626"
-          side={THREE.DoubleSide}
-          metalness={0.3}
-          roughness={0.4}
-          wireframe={false}
-        />
-      </mesh>
-
-      {allCharacters.map((char, index) => (
-        <group
-          key={`top-${index}`}
-          ref={(el) => {
-            if (el) {
-              const sprite = el.children[0] as THREE.Sprite
-              if (sprite) topTextRefs.current[index] = sprite
-            }
-          }}
-        >
-          <TextSprite char={char} color="white" />
-        </group>
-      ))}
-
-      {allCharacters.map((char, index) => (
-        <group
-          key={`bottom-${index}`}
-          ref={(el) => {
-            if (el) {
-              const sprite = el.children[0] as THREE.Sprite
-              if (sprite) bottomTextRefs.current[index] = sprite
-            }
-          }}
-        >
-          <TextSprite char={char} color="white" />
-        </group>
-      ))}
-    </>
-  )
-}
-
 export default function Home() {
 
-  // 1. Create refs for the SVG text paths
   const textPathTopRef = useRef<SVGTextPathElement>(null)
   const textPathBottomRef = useRef<SVGTextPathElement>(null)
 
-  // 2. Define your text string once to keep the DOM clean
-  const baseText = "REFRESHING • DELICIOUS • ICONIC • CLASSIC • "
-  const repeatCount = 10 // Adjust based on screen width coverage
-  const repeatedText = Array(repeatCount).fill(baseText).join("")
+  const textString = "REFRESHING • DELICIOUS • ICONIC • CLASSIC • "
+  
+  // 1. Calculate the pattern width for a seamless loop
+  const patternWidth = useMemo(() => {
+    if (typeof document === 'undefined') return 0 // Server-side guard
+    const canvas = document.createElement("canvas")
+    const context = canvas.getContext("2d")
+    if (context) {
+      // Must match the font settings in the SVG <text> below
+      context.font = "bold 40px Arial, sans-serif" 
+      return context.measureText(textString).width
+    }
+    return 0
+  }, [])
 
-  // 3. Set up the animation loop
+  // 2. Ensure we have enough repetitions to cover the path + buffer
+  // The viewBox width is 1400, but the curve is longer, roughly 1600-1800.
+  // We add extra repetitions to ensure no gaps during the scroll.
+  const repeatedText = useMemo(() => {
+    return Array(12).fill(textString).join("")
+  }, [])
+
   useEffect(() => {
+    if (!patternWidth) return
+
     let animationFrameId: number
-    let offset = -100 // Starting at -100% like your original code
+    let currentDist = 0
 
     const animate = () => {
-      // Adjust speed here (0.05 is roughly equivalent to 20s duration)
-      offset += 0.05 
+      // 3. Move by pixels per frame
+      // Adjust this value to change speed (e.g., 2 is faster, 0.5 is slower)
+      currentDist += 0.5 
 
-      // Reset when we reach 0% to loop seamlessly back to -100%
-      if (offset >= 0) {
-        offset = -100
-      }
+      // 4. The Seamless Loop Logic:
+      // Instead of relying on path %, we use the Modulo operator (%) 
+      // based on the text width.
+      // This ensures that strictly every X pixels, the loop seamlessly wraps.
+      // We subtract 'patternWidth * 8' (or any large multiple) to start 
+      // the text far back to the left, ensuring the path is fully filled at start.
+      const offset = (currentDist % patternWidth) - (patternWidth * 8)
 
       if (textPathTopRef.current) {
-        textPathTopRef.current.setAttribute("startOffset", `${offset}%`)
+        // SVG supports unitless numbers which are interpreted as user-space pixels
+        textPathTopRef.current.setAttribute("startOffset", `${offset}`)
       }
       if (textPathBottomRef.current) {
-        textPathBottomRef.current.setAttribute("startOffset", `${offset}%`)
+        textPathBottomRef.current.setAttribute("startOffset", `${offset}`)
       }
 
       animationFrameId = requestAnimationFrame(animate)
     }
 
     animate()
-
     return () => cancelAnimationFrame(animationFrameId)
-  }, [])
+  }, [patternWidth])
 
   return (
     <div className="z-50">
